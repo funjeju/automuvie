@@ -30,16 +30,13 @@ services:
     container_name: automuvie-frontend
     ports:
       - "3000:3000"
+    # NEXT_PUBLIC_FIREBASE_* 값은 호스트 env 또는 src/frontend/.env.local에서 주입.
+    # docker-compose 파일에 하드코딩하지 않는다 (GitHub Secret Scanning 회피).
+    env_file:
+      - ./src/frontend/.env.local
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
       NEXT_PUBLIC_DEV_UID: dev_user
-      NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyAsiWDgPS7OCgrqQKbL8_uqYrpJGI2XZe4
-      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: automuvie-ccee1.firebaseapp.com
-      NEXT_PUBLIC_FIREBASE_PROJECT_ID: automuvie-ccee1
-      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: automuvie-ccee1.firebasestorage.app
-      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "349060097218"
-      NEXT_PUBLIC_FIREBASE_APP_ID: "1:349060097218:web:075e35fa59ee089ede875b"
-      NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-0Z892TYTEE
     depends_on:
       - backend
     restart: unless-stopped
