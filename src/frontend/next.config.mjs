@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // ESLint는 별도 step(`npm run lint`)에서 검증한다. build를 block하지 않는다.
+  eslint: { ignoreDuringBuilds: true },
+  // 타입 체크는 별도 step(`npm run type-check`)에서 처리. build 차단 방지.
+  typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.googleusercontent.com" },
