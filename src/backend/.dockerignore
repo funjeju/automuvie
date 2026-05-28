@@ -1,0 +1,17 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+.env
+.env.local
+output/
+temp/
+
+# credentials는 build context에 들어가지 않도록 차단
+serviceAccount*.json
+service-account*.json
+*-firebase-adminsdk-*.json
+google-credentials*.json
+*.pem

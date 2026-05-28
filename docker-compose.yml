@@ -1,0 +1,45 @@
+services:
+  backend:
+    build: ./src/backend
+    container_name: automuvie-backend
+    ports:
+      - "8000:8000"
+    environment:
+      ENV: development
+      API_BASE_URL: http://localhost:8000
+      CORS_ORIGINS: http://localhost:3000
+      LYRICS_PROVIDER: mock
+      MUSIC_PROVIDER: mock
+      IMAGE_PROVIDER: mock
+      VIDEO_PROVIDER: mock
+      SUBTITLE_PROVIDER: mock
+      TEMP_DIR: /data/temp
+      OUTPUT_DIR: /data/output
+      FIREBASE_PROJECT_ID: automuvie-ccee1
+      FIREBASE_STORAGE_BUCKET: automuvie-ccee1.firebasestorage.app
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-admin.json
+    volumes:
+      - ./output:/data/output
+      - ./temp:/data/temp
+      # 호스트의 service account JSON을 read-only로 mount (이미지에는 포함되지 않음)
+      - ./src/backend/serviceAccountKey.json:/run/secrets/firebase-admin.json:ro
+    restart: unless-stopped
+
+  frontend:
+    build: ./src/frontend
+    container_name: automuvie-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      NEXT_PUBLIC_DEV_UID: dev_user
+      NEXT_PUBLIC_FIREBASE_API_KEY: AIzaSyAsiWDgPS7OCgrqQKbL8_uqYrpJGI2XZe4
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: automuvie-ccee1.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: automuvie-ccee1
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: automuvie-ccee1.firebasestorage.app
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "349060097218"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:349060097218:web:075e35fa59ee089ede875b"
+      NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: G-0Z892TYTEE
+    depends_on:
+      - backend
+    restart: unless-stopped

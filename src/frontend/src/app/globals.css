@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html,
+  body {
+    background-color: #090b1a;
+    color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% -10%, rgba(177, 76, 255, 0.18) 0%, transparent 55%),
+      radial-gradient(circle at 80% 10%, rgba(217, 70, 239, 0.12) 0%, transparent 60%);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-card border border-border rounded-card shadow-soft;
+  }
+  .panel-glow {
+    @apply panel shadow-glow;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-chip px-5 py-2.5 text-sm font-semibold text-white bg-brand-gradient shadow-glow hover:opacity-95 transition;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-chip px-5 py-2.5 text-sm font-medium text-white border border-border hover:bg-white/5 transition;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-chip px-3 py-2 text-sm text-muted hover:text-white hover:bg-white/5 transition;
+  }
+  .input-base {
+    @apply w-full rounded-chip bg-white/5 border border-border px-4 py-2.5 text-sm text-white placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 transition;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs border border-border text-muted;
+  }
+  .chip-active {
+    @apply bg-brand-gradient text-white border-transparent shadow-glow;
+  }
+}
