@@ -95,32 +95,35 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted">Project</p>
-          <h1 className="text-2xl font-semibold">{project.projectId}</h1>
-          <p className="mt-1 text-sm text-muted">
-            {project.genre} · {project.mood} · {project.duration}s
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {inProgress && (
-            <Button variant="ghost" size="sm" onClick={onCancel}>
-              <XCircle className="h-4 w-4" /> 취소
-            </Button>
-          )}
-          {isFailed && (
-            <Button variant="secondary" onClick={onRestart} disabled={restarting}>
-              <RotateCcw className="h-4 w-4" /> 다시 생성
-            </Button>
-          )}
-          {project.finalVideoUrl && (
-            <a href={project.finalVideoUrl} target="_blank" rel="noreferrer">
-              <Button>
-                <Download className="h-4 w-4" /> Final MP4
+      {/* Sticky action bar */}
+      <div className="sticky top-0 z-10 -mx-4 bg-[#0f0f14]/90 px-4 py-3 backdrop-blur-sm border-b border-border">
+        <div className="flex flex-wrap items-center justify-between gap-3 mx-auto max-w-7xl">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted">Project</p>
+            <h1 className="text-xl font-semibold leading-tight">{project.projectId}</h1>
+            <p className="text-xs text-muted">
+              {project.genre} · {project.mood} · {project.duration}s
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {inProgress && (
+              <Button variant="ghost" size="sm" onClick={onCancel}>
+                <XCircle className="h-4 w-4" /> 취소
               </Button>
-            </a>
-          )}
+            )}
+            {isFailed && (
+              <Button variant="secondary" onClick={onRestart} disabled={restarting}>
+                <RotateCcw className="h-4 w-4" /> 다시 생성
+              </Button>
+            )}
+            {project.finalVideoUrl && (
+              <a href={project.finalVideoUrl} target="_blank" rel="noreferrer">
+                <Button>
+                  <Download className="h-4 w-4" /> Final MP4
+                </Button>
+              </a>
+            )}
+          </div>
         </div>
       </div>
 

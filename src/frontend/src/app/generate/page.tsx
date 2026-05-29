@@ -1,13 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Input, Label, Textarea } from "@/components/ui/Input";
 import { GENRE_OPTIONS, MOOD_OPTIONS } from "@/constants/workflow";
 import { projectApi } from "@/services/api";
+
+const DRAFT_KEY = "automuvie_generate_draft";
+
+interface Draft {
+  genre: string;
+  mood: string;
+  prompt: string;
+  duration: number;
+}
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -17,6 +27,27 @@ export default function GeneratePage() {
   const [duration, setDuration] = useState(120);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const d: Draft = JSON.parse(raw);
+        if (GENRE_OPTIONS.includes(d.genre)) setGenre(d.genre);
+        if (MOOD_OPTIONS.includes(d.mood)) setMood(d.mood);
+        if (d.prompt) setPrompt(d.prompt);
+        if (d.duration >= 60 && d.duration <= 180) setDuration(d.duration);
+      }
+    } catch {}
+  }, []);
+
+  const saveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ genre, mood, prompt, duration }));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1800);
+  };
 
   const submit = async () => {
     setError(null);
@@ -27,6 +58,7 @@ export default function GeneratePage() {
     setLoading(true);
     try {
       const res = await projectApi.create({ genre, mood, prompt, duration });
+      localStorage.removeItem(DRAFT_KEY);
       router.push(`/projects/${res.projectId}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "프로젝트 생성에 실패했습니다.");
@@ -102,9 +134,15 @@ export default function GeneratePage() {
 
           {error && <p className="text-sm text-error">{error}</p>}
 
-          <Button size="lg" onClick={submit} disabled={loading} className="w-full md:w-auto">
-            {loading ? "생성 중..." : "생성 시작"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="lg" onClick={submit} disabled={loading} className="w-full md:w-auto">
+              {loading ? "생성 중..." : "생성 시작"}
+            </Button>
+            <Button variant="secondary" size="sm" onClick={saveDraft} disabled={loading}>
+              <Save className="h-4 w-4" />
+              {saved ? "저장됨" : "임시 저장"}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

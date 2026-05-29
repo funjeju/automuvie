@@ -9,8 +9,9 @@ log = get_logger("firebase")
 
 def _resolve_credentials():
     """우선순위:
-    1. GOOGLE_APPLICATION_CREDENTIALS=path/to/serviceAccount.json
-    2. FIREBASE_PRIVATE_KEY/FIREBASE_CLIENT_EMAIL 개별 env
+    1. GOOGLE_APPLICATION_CREDENTIALS=path/to/serviceAccount.json  (로컬)
+    2. FIREBASE_PRIVATE_KEY/FIREBASE_CLIENT_EMAIL 개별 env         (Vercel 등 file-less 환경)
+    3. Application Default Credentials                            (Cloud Run / GCE — 자동)
     """
     from firebase_admin import credentials
 
@@ -34,7 +35,15 @@ def _resolve_credentials():
             "client_email": settings.firebase_client_email,
             "token_uri": "https://oauth2.googleapis.com/token",
         })
-    return None
+
+    # Cloud Run / GCE / Cloud Functions에서는 메타데이터 서버로 자동 토큰 발급
+    try:
+        cred = credentials.ApplicationDefault()
+        log.info("Firebase credentials: Application Default")
+        return cred
+    except Exception as e:
+        log.warning(f"ApplicationDefault unavailable: {e}")
+        return None
 
 
 @lru_cache
