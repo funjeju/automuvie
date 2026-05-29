@@ -55,21 +55,24 @@ class MockLyricsProvider:
         return Lyrics(sections=sections)
 
 
-class ClaudeLyricsProvider:
-    """Anthropic Claude based lyric generator."""
+class GeminiLyricsProvider:
+    """Google Gemini based lyric generator."""
 
     async def generate(self, *, genre: str, mood: str, prompt: str, duration: int) -> Lyrics:
         try:
-            from anthropic import Anthropic
+            import google.generativeai as genai
         except Exception:
-            log.warning("anthropic SDK 미설치 — mock fallback")
+            log.warning("google-generativeai SDK 미설치 — mock fallback")
             return await MockLyricsProvider().generate(genre=genre, mood=mood, prompt=prompt, duration=duration)
 
         settings = get_settings()
-        if not settings.claude_api_key:
+        if not settings.google_genai_api_key:
+            log.warning("GOOGLE_GENERATIVE_AI_API_KEY 미설정 — mock fallback")
             return await MockLyricsProvider().generate(genre=genre, mood=mood, prompt=prompt, duration=duration)
 
-        client = Anthropic(api_key=settings.claude_api_key)
+        genai.configure(api_key=settings.google_genai_api_key)
+        model = genai.GenerativeModel("gemini-2.0-flash")
+
         scaffold = _structure_for_duration(duration)
         structure_hint = ", ".join(f"{k.value}_{o}" for k, o in scaffold)
 
@@ -77,26 +80,23 @@ class ClaudeLyricsProvider:
             f"You are a cinematic music lyric writer.\n"
             f"Genre: {genre}\nMood: {mood}\nDuration: {duration}s\nUser prompt: {prompt or '(none)'}\n"
             f"Generate lyrics with these sections in order: {structure_hint}.\n"
-            f"Return ONLY JSON with shape: "
+            f"Return ONLY valid JSON with shape: "
             f'{{"sections":[{{"sectionId":"verse_1","type":"verse","order":1,"text":"..."}}]}}'
+            f"\nNo markdown, no explanation. Raw JSON only."
         )
 
-        msg = client.messages.create(
-            model="claude-opus-4-7",
-            max_tokens=2048,
-            messages=[{"role": "user", "content": user_prompt}],
-        )
-        raw = "".join(block.text for block in msg.content if hasattr(block, "text")).strip()
         try:
+            response = model.generate_content(user_prompt)
+            raw = response.text.strip()
             data = json.loads(raw[raw.index("{") : raw.rindex("}") + 1])
             return Lyrics.model_validate(data)
         except Exception as e:
-            log.error(f"Claude lyrics parse failed: {e}")
+            log.error(f"Gemini lyrics parse failed: {e}")
             return await MockLyricsProvider().generate(genre=genre, mood=mood, prompt=prompt, duration=duration)
 
 
 def get_lyrics_provider():
     settings = get_settings()
     if settings.lyrics_provider == "live":
-        return ClaudeLyricsProvider()
+        return GeminiLyricsProvider()
     return MockLyricsProvider()
