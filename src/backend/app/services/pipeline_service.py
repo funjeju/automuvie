@@ -120,7 +120,8 @@ async def run_pipeline(project_id: str) -> None:
                 lyrics = await _with_retry(
                     "lyrics",
                     lambda: provider.generate(
-                        genre=project.genre, mood=project.mood, prompt=project.prompt, duration=project.duration
+                        genre=project.genre, mood=project.mood, prompt=project.prompt, duration=project.duration,
+                        language=getattr(project, "language", "ko"), style=getattr(project, "style", ""),
                     ),
                 )
                 cache.set(key, lyrics.model_dump(mode="json"))

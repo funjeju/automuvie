@@ -90,7 +90,7 @@ class GPTImageProvider:
             urls: list[str] = []
             for i in range(DEFAULT_IMAGES_PER_SECTION):
                 prompt = f"{style}. Scene: {sec.text}. Variation {i+1}."
-                resp = client.images.generate(model="gpt-image-1", prompt=prompt, size="1024x1792", n=1)
+                resp = client.images.generate(model="gpt-image-1", prompt=prompt, size="1024x1536", n=1)
                 b64 = resp.data[0].b64_json  # type: ignore[union-attr]
                 filename = f"{sec.sectionId}_{i+1}.png"
                 local = Path(storage.local_path(project_id, "images", filename))

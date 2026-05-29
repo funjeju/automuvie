@@ -92,6 +92,8 @@ export interface CreateProjectRequest {
   mood: string;
   prompt: string;
   duration: number;
+  language: string;
+  style: string;
 }
 
 export interface ApiSuccess<T> {

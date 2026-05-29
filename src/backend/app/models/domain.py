@@ -48,6 +48,8 @@ class Project(BaseModel):
     mood: str
     prompt: str = ""
     duration: int
+    language: str = "ko"
+    style: str = ""
     status: ProjectStatus = ProjectStatus.QUEUED
     progress: int = 0
 

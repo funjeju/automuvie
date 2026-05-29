@@ -12,11 +12,19 @@ import { projectApi } from "@/services/api";
 
 const DRAFT_KEY = "automuvie_generate_draft";
 
+const LANGUAGE_OPTIONS = [
+  { value: "ko", label: "한국어" },
+  { value: "en", label: "English" },
+  { value: "mixed", label: "한영 혼용" },
+];
+
 interface Draft {
   genre: string;
   mood: string;
   prompt: string;
   duration: number;
+  language: string;
+  style: string;
 }
 
 export default function GeneratePage() {
@@ -25,11 +33,12 @@ export default function GeneratePage() {
   const [mood, setMood] = useState<string>(MOOD_OPTIONS[0]);
   const [prompt, setPrompt] = useState("");
   const [duration, setDuration] = useState(120);
+  const [language, setLanguage] = useState("ko");
+  const [style, setStyle] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Restore draft on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
@@ -39,12 +48,14 @@ export default function GeneratePage() {
         if (MOOD_OPTIONS.includes(d.mood)) setMood(d.mood);
         if (d.prompt) setPrompt(d.prompt);
         if (d.duration >= 60 && d.duration <= 180) setDuration(d.duration);
+        if (["ko", "en", "mixed"].includes(d.language)) setLanguage(d.language);
+        if (d.style) setStyle(d.style);
       }
     } catch {}
   }, []);
 
   const saveDraft = () => {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify({ genre, mood, prompt, duration }));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ genre, mood, prompt, duration, language, style }));
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
   };
@@ -57,7 +68,7 @@ export default function GeneratePage() {
     }
     setLoading(true);
     try {
-      const res = await projectApi.create({ genre, mood, prompt, duration });
+      const res = await projectApi.create({ genre, mood, prompt, duration, language, style });
       localStorage.removeItem(DRAFT_KEY);
       router.push(`/projects/${res.projectId}`);
     } catch (e) {
@@ -72,7 +83,7 @@ export default function GeneratePage() {
       <Card>
         <CardHeader>
           <CardTitle>New Music Video</CardTitle>
-          <span className="text-xs text-muted">장르 · 분위기 · 프롬프트 입력</span>
+          <span className="text-xs text-muted">장르 · 분위기 · 가사 설정</span>
         </CardHeader>
         <CardContent>
           <div>
@@ -98,11 +109,33 @@ export default function GeneratePage() {
           </div>
 
           <div>
-            <Label htmlFor="prompt">Prompt (선택)</Label>
+            <Label>가사 언어</Label>
+            <div className="flex flex-wrap gap-2">
+              {LANGUAGE_OPTIONS.map((l) => (
+                <Chip key={l.value} active={language === l.value} onClick={() => setLanguage(l.value)}>
+                  {l.label}
+                </Chip>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="style">아티스트 / 스타일 레퍼런스 (선택)</Label>
+            <Input
+              id="style"
+              maxLength={200}
+              placeholder="e.g. IU, NewJeans, 잔잔한 발라드, city pop"
+              value={style}
+              onChange={(e) => setStyle(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="prompt">가사 주제 / 컨셉 (선택)</Label>
             <Textarea
               id="prompt"
               maxLength={500}
-              placeholder="e.g. 비 오는 도시의 따뜻한 기억"
+              placeholder="e.g. 비 오는 도시에서의 이별, 첫사랑에 대한 그리움"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
@@ -129,6 +162,7 @@ export default function GeneratePage() {
                 onChange={(e) => setDuration(Number(e.target.value))}
                 className="flex-1 accent-[#B14CFF]"
               />
+              <span className="text-sm text-muted w-10 text-right">{duration}s</span>
             </div>
           </div>
 
@@ -152,7 +186,7 @@ export default function GeneratePage() {
         </CardHeader>
         <CardContent>
           <ol className="space-y-2 text-sm text-muted">
-            <li>1. Claude로 가사 생성</li>
+            <li>1. Gemini로 가사 생성</li>
             <li>2. Lyria 3 Pro로 음악 생성</li>
             <li>3. GPT Image로 section별 이미지 생성</li>
             <li>4. Veo 3.1로 클립 생성</li>

@@ -3,7 +3,7 @@ from ...models.domain import Lyrics, AudioMeta, SectionImages, SectionClips
 
 
 class LyricsProvider(Protocol):
-    async def generate(self, *, genre: str, mood: str, prompt: str, duration: int) -> Lyrics: ...
+    async def generate(self, *, genre: str, mood: str, prompt: str, duration: int, language: str = "ko", style: str = "") -> Lyrics: ...
 
 
 class MusicProvider(Protocol):

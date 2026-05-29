@@ -8,7 +8,7 @@ from ..workers.task_queue import get_task_queue
 from .pipeline_service import run_pipeline
 
 
-async def create_project(*, uid: str, genre: str, mood: str, prompt: str, duration: int) -> Project:
+async def create_project(*, uid: str, genre: str, mood: str, prompt: str, duration: int, language: str = "ko", style: str = "") -> Project:
     repo = get_project_repository()
     project = Project(
         projectId=f"proj_{uuid.uuid4().hex[:12]}",
@@ -17,6 +17,8 @@ async def create_project(*, uid: str, genre: str, mood: str, prompt: str, durati
         mood=mood,
         prompt=prompt or "",
         duration=duration,
+        language=language,
+        style=style,
         status=ProjectStatus.QUEUED,
     )
     await repo.create(project)

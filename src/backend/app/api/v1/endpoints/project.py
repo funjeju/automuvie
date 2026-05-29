@@ -40,7 +40,8 @@ async def list_projects(uid: str = Depends(get_current_uid), limit: int = 50):
 @router.post("/project/create")
 async def create_project_endpoint(body: CreateProjectRequest, uid: str = Depends(get_current_uid)):
     project = await create_project(
-        uid=uid, genre=body.genre, mood=body.mood, prompt=body.prompt, duration=body.duration
+        uid=uid, genre=body.genre, mood=body.mood, prompt=body.prompt, duration=body.duration,
+        language=body.language, style=body.style,
     )
     return ok({"projectId": project.projectId, "status": project.status.value})
 

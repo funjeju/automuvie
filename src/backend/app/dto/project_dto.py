@@ -7,6 +7,8 @@ class CreateProjectRequest(BaseModel):
     mood: str = Field(..., min_length=1)
     prompt: str = Field(default="", max_length=MAX_PROMPT_LENGTH)
     duration: int = Field(..., ge=MIN_DURATION, le=MAX_DURATION)
+    language: str = Field(default="ko", pattern="^(ko|en|mixed)$")
+    style: str = Field(default="", max_length=200)
 
 
 class ProjectIdRequest(BaseModel):
